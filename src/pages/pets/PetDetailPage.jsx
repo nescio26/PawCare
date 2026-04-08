@@ -1,10 +1,12 @@
 import { cloneElement } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { usePet } from "../../hooks/usePets.js";
 import { useVisitsByPet } from "../../hooks/useVisits.js";
 import { useRecordsByPet } from "../../hooks/useRecords.js";
 import { useAuthStore } from "../../store/authStore.js";
 import { formatDate } from "../../utils/formatDate.js";
+
+// UI Components
 import { Button } from "../../components/ui/button.jsx";
 import {
   Card,
@@ -15,9 +17,21 @@ import {
 import { Badge } from "../../components/ui/badge.jsx";
 import { Separator } from "../../components/ui/separator.jsx";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar.jsx";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../../components/ui/breadcrumb.jsx";
+
+// Shared components
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import LoadingSpinner from "../../components/shared/LoadingSpinner.jsx";
 import EmptyState from "../../components/shared/EmptyState.jsx";
+
+// Icons
 import {
   Edit,
   Plus,
@@ -27,6 +41,9 @@ import {
   Fingerprint,
   Activity,
   FileText,
+  Home,
+  User,
+  Clock,
 } from "lucide-react";
 
 const statusVariants = {
@@ -51,61 +68,73 @@ export default function PetDetailPage() {
   const visits = visitsData?.data || [];
   const records = recordsData?.data || [];
 
-  if (!pet)
-    return (
-      <EmptyState
-        title="Pet not found"
-        description="The patient record might have been removed."
-      />
-    );
+  if (!pet) return <EmptyState title="Pet not found" />;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-10 animate-in fade-in duration-500">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <PageHeader
-          title={pet.name}
-          description={
-            <span className="flex items-center gap-2 mt-1">
-              {" "}
-              {/* ← Changed to span */}
-              <Badge variant="secondary" className="capitalize">
+    <div className="max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
+      {/* 1. Breadcrumbs - Matching OwnerPage */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/pets" className="flex items-center gap-1">
+                <Home className="h-3 w-3" /> Patients
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{pet.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* 2. Action Header - Large Icon Box style */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-sm">
+            <PawPrint className="h-8 w-8" />
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                {pet.name}
+              </h1>
+              <Badge className="bg-[#009894] hover:bg-[#007a77] text-white border-none text-[10px] uppercase font-bold px-2 py-0.5">
                 {pet.species}
               </Badge>
-              {pet.breed && (
-                <span className="text-muted-foreground">· {pet.breed}</span>
-              )}
-            </span>
-          }
-        />
+            </div>
+            <p className="text-muted-foreground flex items-center gap-2 text-sm mt-0.5">
+              {pet.breed || "Mixed Breed"} •
+              <span className="text-primary font-medium capitalize">
+                {pet.gender}
+              </span>
+            </p>
+          </div>
+        </div>
+
         {user?.role !== "vet" && (
           <Button
             variant="outline"
-            size="sm"
             onClick={() => navigate(`/pets/${id}/edit`)}
-            className="w-fit"
+            className="shadow-sm hover:bg-accent transition-all active:scale-95"
           >
-            <Edit className="w-4 h-4 mr-2" /> Edit Profile
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Patient
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left Column: Details & Owner */}
-        <div className="md:col-span-1 space-y-6">
-          <Card className="shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* 3. Left Column: Vitals & Owner Details */}
+        <div className="space-y-6">
+          <Card className="shadow-md border-border/60">
             <CardHeader className="pb-3">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <Activity className="w-3.5 h-3.5" /> Patient Info
+              <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                Patient Vitals
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <DetailItem
-                icon={<PawPrint />}
-                label="Gender"
-                value={pet.gender}
-                capitalize
-              />
+            <CardContent className="space-y-5">
               <DetailItem
                 icon={<Calendar />}
                 label="Born"
@@ -124,25 +153,28 @@ export default function PetDetailPage() {
                 value={pet.microchipNo || "None"}
                 isMono
               />
-              <Separator />
+
+              <Separator className="my-2" />
+
+              {/* Owner Info Block */}
               <div className="pt-2">
-                <p className="text-[10px] font-bold uppercase text-muted-foreground mb-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 mb-3">
                   Primary Owner
                 </p>
                 <div
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors border border-transparent hover:border-border"
+                  className="group flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:border-primary/30 hover:bg-white hover:shadow-sm cursor-pointer transition-all"
                   onClick={() => navigate(`/owners/${pet.owner?._id}`)}
                 >
-                  <Avatar className="h-9 w-9 border">
-                    <AvatarFallback className="bg-primary/5 text-primary text-xs">
+                  <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
+                    <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
                       {pet.owner?.name?.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate">
+                    <p className="text-sm font-bold truncate group-hover:text-primary transition-colors">
                       {pet.owner?.name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground font-medium">
                       {pet.owner?.phone}
                     </p>
                   </div>
@@ -152,19 +184,19 @@ export default function PetDetailPage() {
           </Card>
         </div>
 
-        {/* Right Column: History & Records */}
+        {/* 4. Right Column: History & Records */}
         <div className="md:col-span-2 space-y-6">
-          {/* Visits Card */}
-          <Card className="shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-4">
+          {/* Visit History Card */}
+          <Card className="shadow-md border-border/60 overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 border-b bg-slate-50/50">
               <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-primary" /> Visit History
+                <Clock className="w-4 h-4 text-[#009894]" /> Visit History
               </CardTitle>
               {user?.role !== "vet" && (
                 <Button
-                  size="xs"
+                  size="sm"
                   variant="ghost"
-                  className="text-primary hover:text-primary hover:bg-primary/5"
+                  className="text-primary hover:bg-primary/5 font-bold text-xs"
                   onClick={() =>
                     navigate(
                       `/visits/new?petId=${id}&ownerId=${pet.owner?._id}`,
@@ -175,33 +207,38 @@ export default function PetDetailPage() {
                 </Button>
               )}
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {visits.length === 0 ? (
-                <div className="py-6 border-2 border-dashed rounded-xl text-center text-muted-foreground text-sm">
-                  No visits recorded yet
+                <div className="py-12 text-center">
+                  <Calendar className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    No visits recorded yet
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="divide-y divide-slate-100">
                   {visits.slice(0, 5).map((visit) => (
                     <div
                       key={visit._id}
-                      className="flex items-center gap-4 p-3 rounded-xl border bg-card hover:bg-muted/30 transition-colors"
+                      className="flex items-center gap-4 p-4 hover:bg-slate-50/50 transition-colors group"
                     >
-                      <div className="h-10 w-10 rounded-full bg-primary/5 flex items-center justify-center text-xs font-black text-primary border border-primary/10">
-                        #{visit.queueNo}
+                      <div className="h-10 w-10 rounded-xl bg-slate-100 flex flex-col items-center justify-center shrink-0 border border-slate-200 group-hover:bg-primary/10 group-hover:border-primary/20 transition-all">
+                        <span className="text-[10px] font-black text-slate-500 group-hover:text-primary">
+                          #{visit.queueNo}
+                        </span>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-800">
                           {visit.reason || "General Checkup"}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[11px] text-muted-foreground font-medium">
                           {formatDate(visit.visitDate)}{" "}
                           {visit.vet && `• Dr. ${visit.vet.name}`}
                         </p>
                       </div>
                       <Badge
                         variant="outline"
-                        className={`${statusVariants[visit.status]} border shadow-none`}
+                        className={`${statusVariants[visit.status] || ""} text-[9px] font-black uppercase tracking-tighter px-2 py-0 border-none shadow-none`}
                       >
                         {visit.status}
                       </Badge>
@@ -212,80 +249,81 @@ export default function PetDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Medical Records Card */}
-          <Card className="shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-4">
-              <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
-                <FileText className="w-4 h-4 text-primary" /> Clinical Records
-              </CardTitle>
-              {user?.role !== "staff" && (
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  className="text-primary hover:text-primary hover:bg-primary/5"
-                  onClick={() => navigate(`/records/new?petId=${id}`)}
+          {/* Clinical Records Section */}
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800">
+              <FileText className="h-5 w-5 text-primary" /> Clinical Notes
+            </h2>
+            {user?.role !== "staff" && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-primary hover:bg-primary/5 font-bold text-xs"
+                onClick={() => navigate(`/records/new?petId=${id}`)}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Record
+              </Button>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            {records.length === 0 ? (
+              <div className="p-8 border-2 border-dashed rounded-2xl text-center text-muted-foreground/60 text-sm">
+                No clinical records found for this patient.
+              </div>
+            ) : (
+              records.map((record) => (
+                <div
+                  key={record._id}
+                  className="relative pl-6 border-l-2 border-primary/20 py-1 hover:border-primary transition-colors"
                 >
-                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Record
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent>
-              {records.length === 0 ? (
-                <div className="py-6 border-2 border-dashed rounded-xl text-center text-muted-foreground text-sm">
-                  No clinical notes available
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {records.map((record) => (
-                    <div
-                      key={record._id}
-                      className="relative pl-4 border-l-2 border-primary/20 space-y-1 py-1"
-                    >
-                      <div className="flex justify-between items-start">
-                        <p className="text-sm font-bold text-foreground/90">
-                          {record.diagnosis || "Consultation"}
-                        </p>
-                        <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded italic">
-                          {formatDate(record.createdAt)}
-                        </span>
-                      </div>
-                      {record.symptoms && (
-                        <p className="text-xs text-muted-foreground italic line-clamp-2">
-                          "Symptoms: {record.symptoms}"
-                        </p>
-                      )}
-                      {record.vet && (
-                        <p className="text-[10px] font-semibold text-primary/70 uppercase tracking-tight">
-                          Signed: Dr. {record.vet.name}
-                        </p>
-                      )}
+                  <div className="absolute w-2 h-2 bg-primary rounded-full -left-[5px] top-2 shadow-[0_0_8px_rgba(0,152,148,0.5)]" />
+                  <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-slate-800 text-sm">
+                        {record.diagnosis || "Consultation"}
+                      </h4>
+                      <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full uppercase">
+                        {formatDate(record.createdAt)}
+                      </span>
                     </div>
-                  ))}
+                    {record.symptoms && (
+                      <p className="text-xs text-slate-600 italic mb-3 leading-relaxed">
+                        "{record.symptoms}"
+                      </p>
+                    )}
+                    {record.vet && (
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary/80 uppercase tracking-tight">
+                        <User size={10} />
+                        Signed by Dr. {record.vet.name}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Helper component for cleaner detail rows
-function DetailItem({ icon, label, value, capitalize, isMono }) {
+function DetailItem({ icon, label, value, isMono }) {
   return (
-    <div className="flex items-center justify-between group">
-      <div className="flex items-center gap-2.5 text-muted-foreground">
-        <span className="p-1.5 rounded-md bg-muted group-hover:bg-primary/5 transition-colors">
-          {cloneElement(icon, { className: "w-3.5 h-3.5" })}
+    <div className="group flex flex-col gap-1">
+      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+        <span className="p-1 rounded bg-slate-50 text-slate-400 group-hover:text-primary group-hover:bg-primary/5 transition-colors">
+          {cloneElement(icon, { size: 12 })}
         </span>
-        <span className="text-xs font-medium">{label}</span>
+        {label}
       </div>
-      <span
-        className={`text-sm font-semibold ${capitalize ? "capitalize" : ""} ${isMono ? "font-mono text-[11px]" : ""}`}
+      <p
+        className={`text-sm font-bold pl-7 text-slate-800 ${isMono ? "font-mono text-xs tracking-tight" : ""}`}
       >
         {value}
-      </span>
+      </p>
     </div>
   );
 }

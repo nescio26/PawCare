@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore.js";
-import { Menu, Bell } from "lucide-react";
+import { Menu, Bell, User as UserIcon } from "lucide-react";
 import { Button } from "../ui/button.jsx";
 import { Badge } from "../ui/badge.jsx";
 import {
@@ -18,22 +18,24 @@ import { cn } from "../../utils/cn.js";
 const pageTitles = {
   "/": "Dashboard",
   "/queue": "Live Queue",
-  "/owners": "Owners",
-  "/owners/new": "Register Owner",
-  "/pets": "Pets",
-  "/pets/new": "Register Pet",
-  "/visits": "Visits",
-  "/visits/new": "New Visit",
+  "/owners": "Client Directory",
+  "/owners/new": "New Registration",
+  "/pets": "Patient Files",
+  "/pets/new": "Add Patient",
+  "/visits": "Visits Log",
+  "/visits/new": "Check-in",
   "/records": "Medical Records",
-  "/records/new": "New Record",
-  "/analytics": "Analytics",
-  "/users": "Staff Management",
+  "/records/new": "Clinical Entry",
+  "/analytics": "Insights",
+  "/users": "Staff Access",
 };
 
-const roleColors = {
-  admin: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  vet: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  staff: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+const roleStyles = {
+  admin:
+    "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400",
+  vet: "bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400",
+  staff:
+    "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400",
 };
 
 export default function Navbar() {
@@ -41,19 +43,25 @@ export default function Navbar() {
   const { user } = useAuthStore();
   const [open, setOpen] = useState(false);
 
+  // Dynamic Title Logic
   const matchedKey = Object.keys(pageTitles)
     .sort((a, b) => b.length - a.length)
     .find((k) => pathname === k || pathname.startsWith(k + "/"));
 
-  const title = pageTitles[matchedKey] || "Nova Vet";
+  const title = pageTitles[matchedKey] || "PawCare";
 
   return (
-    <header className="h-16 border-b bg-card/80 backdrop-blur-md flex items-center justify-between px-4 md:px-6 sticky top-0 z-40">
-      <div className="flex items-center gap-3">
+    <header className="h-16 border-b bg-white/70 backdrop-blur-xl flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 transition-all">
+      {/* Left Side: Navigation & Title */}
+      <div className="flex items-center gap-4">
         <div className="lg:hidden">
           <Drawer direction="left" open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-xl hover:bg-accent transition-colors"
+              >
                 <Menu className="h-5 w-5" />
               </Button>
             </DrawerTrigger>
@@ -66,28 +74,57 @@ export default function Navbar() {
             </DrawerContent>
           </Drawer>
         </div>
-        <h1 className="text-sm md:text-lg font-bold tracking-tight uppercase truncate">
-          {title}
-        </h1>
+
+        <div className="flex flex-col">
+          <h1 className="text-sm md:text-base font-black tracking-tight uppercase text-foreground/90">
+            {title}
+          </h1>
+          <div className="h-1 w-6 bg-primary rounded-full mt-0.5 hidden md:block" />
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="hidden sm:flex flex-col items-end">
-          <span className="text-xs font-semibold leading-none">
-            {user?.name}
-          </span>
-          <Badge
-            variant="secondary"
-            className={cn(
-              "text-[9px] px-2 py-0 h-4 mt-1 uppercase font-black border-none",
-              roleColors[user?.role],
-            )}
-          >
-            {user?.role}
-          </Badge>
-        </div>
-        <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground border-2 border-background shadow-sm">
-          {user?.name?.charAt(0).toUpperCase()}
+      {/* Right Side: Profile & Notifications */}
+      <div className="flex items-center gap-3 md:gap-6">
+        {/* Notification Icon - slightly larger */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative h-10 w-10 text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Bell className="h-5 w-5 md:h-6 md:w-6" />
+          <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white" />
+        </Button>
+
+        {/* Vertical Divider */}
+        <div className="h-10 w-[1px] bg-border hidden sm:block" />
+
+        <div className="flex items-center gap-4 pl-2">
+          {/* Text Container - Increased sizes here */}
+          <div className="hidden sm:flex flex-col items-end gap-1">
+            <span className="text-sm md:text-base font-bold text-foreground leading-none tracking-tight">
+              {user?.name}
+            </span>
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-[10px] md:text-[11px] px-2 py-0.5 h-auto uppercase font-black tracking-widest transition-colors",
+                roleStyles[user?.role],
+              )}
+            >
+              {user?.role}
+            </Badge>
+          </div>
+
+          {/* User Avatar - Slightly larger container */}
+          <div className="relative group cursor-pointer">
+            <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center border-2 border-primary/20 shadow-sm group-hover:bg-primary group-hover:text-white transition-all duration-300">
+              <span className="text-sm md:text-base font-black">
+                {user?.name?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            {/* Online Status Dot - scaled up */}
+            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
+          </div>
         </div>
       </div>
     </header>

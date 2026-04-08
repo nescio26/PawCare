@@ -17,6 +17,7 @@ import {
   CheckCircle,
   ChevronRight,
   Stethoscope,
+  Users, // Added missing import
 } from "lucide-react";
 import { formatTime } from "../../utils/formatDate.js";
 import { cn } from "../../utils/cn.js";
@@ -45,7 +46,7 @@ export default function VetDashboard() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <PageHeader
-        title={`Welcome back, Dr. ${user?.name.split(" ")[0]}`}
+        title={`Welcome back, Dr. ${user?.name?.split(" ")[0] || "Vet"}`}
         description="Here is what your patient queue looks like today."
       />
 
@@ -54,19 +55,19 @@ export default function VetDashboard() {
           title="Waiting"
           value={waiting}
           icon={Clock}
-          className="border-l-4 border-l-yellow-400 shadow-sm hover:shadow-md transition-shadow"
+          className="border-l-4 border-l-yellow-400 shadow-sm"
         />
         <StatCard
           title="In Progress"
           value={inProgress}
           icon={Stethoscope}
-          className="border-l-4 border-l-blue-400 shadow-sm hover:shadow-md transition-shadow"
+          className="border-l-4 border-l-blue-400 shadow-sm"
         />
         <StatCard
           title="Completed"
           value={done}
           icon={CheckCircle}
-          className="border-l-4 border-l-green-400 shadow-sm hover:shadow-md transition-shadow"
+          className="border-l-4 border-l-green-400 shadow-sm"
         />
       </div>
 
@@ -86,7 +87,8 @@ export default function VetDashboard() {
         </CardHeader>
 
         <CardContent className="p-0">
-          <ScrollArea className="h-[calc(100vh-450px)] min-h-[400px]">
+          {/* Refined height for better display on various laptops */}
+          <ScrollArea className="h-[calc(100vh-420px)] min-h-[300px]">
             {visits.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
@@ -106,9 +108,8 @@ export default function VetDashboard() {
                     key={visit._id}
                     className="group flex flex-col sm:flex-row sm:items-center gap-4 p-4 hover:bg-muted/30 transition-colors cursor-pointer"
                   >
-                    {/* Queue Indicator */}
                     <div className="flex items-center gap-4 shrink-0">
-                      <div className="w-12 h-12 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
                         <span className="text-[10px] font-bold uppercase tracking-tighter leading-none opacity-60">
                           No
                         </span>
@@ -117,7 +118,6 @@ export default function VetDashboard() {
                         </span>
                       </div>
 
-                      {/* Mobile Title View */}
                       <div className="sm:hidden flex-1">
                         <h4 className="font-bold text-base leading-tight">
                           {visit.pet?.name}
@@ -128,7 +128,6 @@ export default function VetDashboard() {
                       </div>
                     </div>
 
-                    {/* Details Info */}
                     <div className="flex-1 min-w-0">
                       <div className="hidden sm:flex items-center gap-2 mb-1">
                         <span className="text-base font-bold text-foreground">
@@ -154,15 +153,14 @@ export default function VetDashboard() {
                       </div>
                     </div>
 
-                    {/* Status Actions */}
-                    <div className="flex items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-none border-dashed">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-none border-dashed border-border/50">
                       <span
                         className={cn(
-                          "text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border shadow-xs",
+                          "text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border shadow-sm",
                           statusColors[visit.status],
                         )}
                       >
-                        {visit.status}
+                        {visit.status.replace("-", " ")}
                       </span>
                       <div className="w-8 h-8 rounded-full flex items-center justify-center bg-muted opacity-0 group-hover:opacity-100 transition-all hidden sm:flex">
                         <ChevronRight className="w-4 h-4" />

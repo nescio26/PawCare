@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLogin } from "../../hooks/useAuth.js";
-import { PawPrint, Loader2 } from "lucide-react";
+import { PawPrint, Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "../../components/ui/button.jsx";
 import { Input } from "../../components/ui/input.jsx";
 import { Label } from "../../components/ui/label.jsx";
@@ -14,14 +15,14 @@ import {
   CardTitle,
 } from "../../components/ui/card.jsx";
 
-// Validation Schema
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid work email"),
+  email: z.string().trim().email("Please enter a valid work email"),
   password: z.string().min(1, "Password is required"),
 });
 
 export default function LoginPage() {
   const { mutate: login, isPending } = useLogin();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -41,7 +42,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 antialiased">
-      {/* Branding Header */}
       <div className="w-full max-w-md mb-8 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg shadow-primary/10">
           <PawPrint className="w-7 h-7 text-primary-foreground" />
@@ -54,17 +54,15 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Login Card */}
       <Card className="w-full max-w-md border-border/50 shadow-xl shadow-black/5 animate-in fade-in zoom-in-95 duration-500">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-xl  text-center">Welcome back</CardTitle>
+          <CardTitle className="text-xl text-center">Welcome back</CardTitle>
           <CardDescription className="text-center">
             Enter your email to sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email Field */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-semibold">
                 Email
@@ -73,7 +71,11 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="name@clinic.com"
-                className={`h-11 transition-all ${errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                className={`h-11 transition-all ${
+                  errors.email
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }`}
                 disabled={isPending}
                 {...register("email")}
               />
@@ -84,7 +86,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Password Field */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
@@ -95,14 +96,34 @@ export default function LoginPage() {
                   Forgot password?
                 </button>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                className={`h-11 transition-all ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                disabled={isPending}
-                {...register("password")}
-              />
+
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  className={`h-11 pr-10 transition-all ${
+                    errors.password
+                      ? "border-destructive focus-visible:ring-destructive"
+                      : ""
+                  }`}
+                  disabled={isPending}
+                  {...register("password")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
+                  tabIndex="-1"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+
               {errors.password && (
                 <p className="text-[12px] font-medium text-destructive leading-none">
                   {errors.password.message}
@@ -110,7 +131,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full h-11 text-sm font-bold shadow-sm"

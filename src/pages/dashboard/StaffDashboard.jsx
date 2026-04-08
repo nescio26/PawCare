@@ -18,6 +18,7 @@ import {
   CheckCircle,
   Plus,
   Activity,
+  Users,
 } from "lucide-react";
 import { formatTime } from "../../utils/formatDate.js";
 import { cn } from "../../utils/cn.js";

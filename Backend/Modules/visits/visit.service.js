@@ -2,7 +2,6 @@ import Visit from "./visit.model.js";
 import Pet from "../pets/pet.model.js";
 import Owner from "../owners/owner.model.js";
 import { emitQueueUpdate } from "../../sockets/queue.socket.js";
-
 // getNextQueueNo
 
 const getNextQueueNo = async () => {

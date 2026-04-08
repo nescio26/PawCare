@@ -1,5 +1,10 @@
 import { useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  Link,
+} from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,7 +13,8 @@ import { z } from "zod";
 import { usePet, useCreatePet, useUpdatePet } from "../../hooks/usePets.js";
 import { useOwners } from "../../hooks/useOwners.js";
 
-// UI & Icons
+// UI Components
+import FormGroup from "@/components/shared/FormGroup.jsx";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import LoadingSpinner from "../../components/shared/LoadingSpinner.jsx";
 import { Button } from "../../components/ui/button.jsx";
@@ -22,7 +28,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select.jsx";
-import { ArrowLeft, Loader2, PawPrint, User, Info } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../../components/ui/breadcrumb.jsx";
+
+// Icons
+import {
+  ArrowLeft,
+  Save,
+  PawPrint,
+  User,
+  Home,
+  Info,
+  Loader2,
+  Target,
+} from "lucide-react";
 
 const petSchema = z.object({
   name: z.string().min(1, "Pet name is required"),
@@ -33,7 +58,7 @@ const petSchema = z.object({
   weight: z.coerce.number().positive().optional(),
   color: z.string().optional(),
   microchipNo: z.string().optional(),
-  owner: z.string().min(1, "Owner is required"),
+  owner: z.string().min(1, "Owner assignment is required"),
 });
 
 export default function PetFormPage() {
@@ -95,219 +120,206 @@ export default function PetFormPage() {
   if (isEdit && isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-20 animate-in fade-in duration-500">
-      <div className="flex items-center gap-4">
+    <div className="max-w-2xl mx-auto space-y-0 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* 1. Breadcrumbs */}
+      <Breadcrumb className="mb-2">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link
+                to="/pets"
+                className="flex items-center gap-1 hover:text-primary transition-colors"
+              >
+                <Home className="h-3.5 w-3.5" /> Patients
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="font-medium text-foreground">
+              {isEdit ? `Edit: ${petData?.data?.name}` : "New Patient"}
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* 2. Header with consistent back button */}
+      <div className="flex items-start gap-5">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate(-1)}
-          className="rounded-full border shrink-0"
+          className="h-10 w-10 rounded-xl border-border bg-background/50 backdrop-blur-sm shadow-sm hover:bg-accent hover:text-accent-foreground shrink-0"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <PageHeader
-          title={isEdit ? "Edit Patient" : "New Patient"}
+          title={isEdit ? "Patient Profile" : "New Registration"}
           description={
             isEdit
-              ? `Updating records for ${petData?.data?.name}`
-              : "Register a new pet to the system"
+              ? `Updating health records for ${petData?.data?.name}`
+              : "Register a new pet and assign a primary owner"
           }
         />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
-        {/* Section 1: Owner Selection */}
-        <Card className="border-primary/10 shadow-sm overflow-hidden">
-          <div className="bg-muted/30 px-6 py-3 border-b flex items-center gap-2">
-            <User className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-bold uppercase tracking-wider">
-              Owner Assignment
-            </h3>
-          </div>
-          <CardContent className="pt-6">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                Select Owner
-              </Label>
-              <Select
-                value={watch("owner")}
-                onValueChange={(v) => setValue("owner", v)}
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Search and select owner" />
-                </SelectTrigger>
-                <SelectContent>
-                  {owners.map((owner) => (
-                    <SelectItem key={owner._id} value={owner._id}>
-                      {owner.name}{" "}
-                      <span className="text-muted-foreground ml-2 text-xs">
-                        ({owner.phone})
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.owner && (
-                <p className="text-xs text-destructive">
-                  {errors.owner.message}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 2: Pet Details */}
-        <Card className="shadow-md border-primary/5">
-          <div className="bg-muted/30 px-6 py-3 border-b flex items-center gap-2">
-            <PawPrint className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-bold uppercase tracking-wider">
-              Pet Identity
-            </h3>
-          </div>
-          <CardContent className="pt-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  Pet Name
-                </Label>
-                <Input
-                  placeholder="e.g. Luna"
-                  className="h-11"
-                  {...register("name")}
-                />
-                {errors.name && (
-                  <p className="text-xs text-destructive">
-                    {errors.name.message}
-                  </p>
-                )}
+      {/* 3. Main Form Card - Matching Owner UI */}
+      <Card className="border-border/60 shadow-xl shadow-black/5 overflow-hidden">
+        <CardContent className="p-0">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="divide-y divide-border/40"
+          >
+            {/* Section 1: Owner  */}
+            <div className="p-6 space-y-5">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/80">
+                  Owner
+                </h3>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  Species
-                </Label>
+              <FormGroup label="Select Primary Owner" error={errors.owner}>
                 <Select
-                  value={watch("species")}
-                  onValueChange={(v) => setValue("species", v)}
+                  value={watch("owner")}
+                  onValueChange={(v) => setValue("owner", v)}
                 >
-                  <SelectTrigger className="h-11 capitalize">
-                    <SelectValue />
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Search for owner by name or phone" />
                   </SelectTrigger>
                   <SelectContent>
-                    {["dog", "cat", "bird", "rabbit", "reptile", "other"].map(
-                      (s) => (
-                        <SelectItem key={s} value={s} className="capitalize">
-                          {s}
-                        </SelectItem>
-                      ),
-                    )}
+                    {owners.map((owner) => (
+                      <SelectItem key={owner._id} value={owner._id}>
+                        {owner.name}{" "}
+                        <span className="text-muted-foreground/60 ml-1 text-xs">
+                          ({owner.phone})
+                        </span>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+              </FormGroup>
+            </div>
+
+            {/* Section 2: Pet Details */}
+            <div className="p-6 bg-muted/30 space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <PawPrint className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/80">
+                  Patient Identity
+                </h3>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  Breed
-                </Label>
-                <Input
-                  placeholder="e.g. Golden Retriever"
-                  className="h-11"
-                  {...register("breed")}
-                />
-                {errors.breed && (
-                  <p className="text-xs text-destructive">
-                    {errors.breed.message}
-                  </p>
-                )}
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormGroup label="Pet Name" error={errors.name}>
+                  <Input placeholder="e.g. Luna" {...register("name")} />
+                </FormGroup>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                    Gender
-                  </Label>
+                <FormGroup label="Species">
                   <Select
-                    value={watch("gender")}
-                    onValueChange={(v) => setValue("gender", v)}
+                    value={watch("species")}
+                    onValueChange={(v) => setValue("species", v)}
                   >
                     <SelectTrigger className="h-11 capitalize">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="unknown">Unknown</SelectItem>
+                      {["dog", "cat", "bird", "rabbit", "reptile", "other"].map(
+                        (s) => (
+                          <SelectItem key={s} value={s} className="capitalize">
+                            {s}
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                    Weight (kg)
-                  </Label>
+                </FormGroup>
+
+                <FormGroup label="Breed" error={errors.breed}>
                   <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="0.0"
-                    className="h-11"
-                    {...register("weight")}
+                    placeholder="e.g. Golden Retriever"
+                    {...register("breed")}
                   />
+                </FormGroup>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormGroup label="Gender">
+                    <Select
+                      value={watch("gender")}
+                      onValueChange={(v) => setValue("gender", v)}
+                    >
+                      <SelectTrigger className="h-11 capitalize">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormGroup>
+                  <FormGroup label="Weight (kg)">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      placeholder="0.0"
+                      {...register("weight")}
+                    />
+                  </FormGroup>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  Date of Birth
-                </Label>
-                <Input
-                  type="date"
-                  className="h-11"
-                  {...register("dateOfBirth")}
-                />
-              </div>
+                <FormGroup label="Date of Birth">
+                  <Input type="date" {...register("dateOfBirth")} />
+                </FormGroup>
 
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
-                  Microchip No <Info className="w-3 h-3 opacity-50" />
-                </Label>
-                <Input
-                  placeholder="15-digit number"
-                  className="h-11"
-                  {...register("microchipNo")}
-                />
+                <FormGroup label="Microchip No. (Optional)">
+                  <div className="relative">
+                    <Input
+                      placeholder="15-digit number"
+                      {...register("microchipNo")}
+                    />
+                    <Info className="absolute right-3 top-3 h-4 w-4 text-muted-foreground/40" />
+                  </div>
+                </FormGroup>
               </div>
             </div>
 
-            {/* Form Footer */}
-            <div className="flex items-center justify-end gap-3 pt-6 border-t mt-4">
+            {/* Section 4: Action Footer */}
+            <div className="p-6 bg-background flex items-center justify-between gap-4">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => navigate(-1)}
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                 disabled={isBusy}
               >
-                Cancel
+                Discard Changes
               </Button>
+
               <Button
                 type="submit"
-                size="lg"
-                className="min-w-[140px] shadow-lg shadow-primary/20"
                 disabled={isBusy}
+                className="px-8 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 min-w-[160px]"
               >
                 {isBusy ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : isEdit ? (
-                  "Update Records"
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                  </span>
                 ) : (
-                  "Register Patient"
+                  <span className="flex items-center gap-2">
+                    {isEdit ? (
+                      <Save className="h-4 w-4" />
+                    ) : (
+                      <Target className="h-4 w-4" />
+                    )}
+                    {isEdit ? "Update Records" : "Register Patient"}
+                  </span>
                 )}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-      </form>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

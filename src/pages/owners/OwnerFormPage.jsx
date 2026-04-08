@@ -10,6 +10,7 @@ import {
 } from "../../hooks/useOwners.js";
 
 // Components
+import FormGroup from "../../components/shared/FormGroup.jsx";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import LoadingSpinner from "../../components/shared/LoadingSpinner.jsx";
 import { Button } from "../../components/ui/button.jsx";
@@ -220,7 +221,10 @@ export default function OwnerFormPage() {
                 type="button"
                 variant="ghost"
                 onClick={() => navigate(-1)}
-                className="text-muted-foreground hover:text-foreground bg-red-500 text-white"
+                // Removed the heavy red background to keep the "Ghost" look clean
+                // but kept a subtle red hover effect to signal 'danger'
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                disabled={creating || updating}
               >
                 Discard Changes
               </Button>
@@ -254,18 +258,3 @@ export default function OwnerFormPage() {
 }
 
 // 5. Helper component to clean up repeating logic and improve spacing consistency
-function FormGroup({ label, children, error }) {
-  return (
-    <div className="space-y-2">
-      <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        {label}
-      </Label>
-      {children}
-      {error && (
-        <p className="text-[11px] font-medium text-destructive animate-in fade-in slide-in-from-top-1">
-          {error.message}
-        </p>
-      )}
-    </div>
-  );
-}
