@@ -1,82 +1,72 @@
-import {
-  getDashboardSummary,
-  getVisitTrends,
-  getQueueStats,
-  getTopBreedsAndDiagnoses,
-  getGrowthOverTime,
-} from "./analytics.service.js";
+import * as analyticsService from "./analytics.service.js";
 
-export const summary = async (req, res, next) => {
+export const getOverview = async (req, res, next) => {
   try {
-    const data = await getDashboardSummary();
+    const data = await analyticsService.getOverview();
     res.status(200).json({
-      status: true,
-      message: "Dashboard summary fetched",
-      data: data,
+      success: true,
+      data,
     });
   } catch (err) {
     next(err);
   }
 };
 
-export const visitTrends = async (req, res, next) => {
+export const getVisitStats = async (req, res, next) => {
   try {
-    const { period = "monthly", limit = 12 } = req.query;
-
-    const allowed = ["daily", "weekly", "monthly"];
-    if (!allowed.includes(period)) {
-      return res.status(400).json({
-        status: false,
-        message: `period must be one of: ${allowed.join(", ")}`,
-      });
-    }
-
-    const data = await getVisitTrends(period, limit);
+    const { period } = req.query;
+    const data = await analyticsService.getVisitStats(period);
     res.status(200).json({
-      status: true,
-      message: "Visit trends fetched",
-      data: data,
+      success: true,
+      data,
     });
   } catch (err) {
     next(err);
   }
 };
 
-export const queueStats = async (req, res, next) => {
+export const getSpeciesStats = async (req, res, next) => {
   try {
-    const data = await getQueueStats();
+    const data = await analyticsService.getSpeciesStats();
     res.status(200).json({
-      status: true,
-      message: "Queue statistics fetched",
-      data: data,
+      success: true,
+      data,
     });
   } catch (err) {
     next(err);
   }
 };
 
-export const topBreedsAndDiagnoses = async (req, res, next) => {
+export const getVetStats = async (req, res, next) => {
   try {
-    const { topN = 10 } = req.query;
-    const data = await getTopBreedsAndDiagnoses(parseInt(topN));
+    const data = await analyticsService.getVetStats();
     res.status(200).json({
-      status: true,
-      message: "Top breeds and diagnoses fetched",
-      data: data,
+      success: true,
+      data,
     });
   } catch (err) {
     next(err);
   }
 };
 
-export const growthOverTime = async (req, res, next) => {
+export const getQueueStats = async (req, res, next) => {
   try {
-    const { months = 12 } = req.query;
-    const data = await getGrowthOverTime(parseInt(months));
+    const data = await analyticsService.getQueueStats();
     res.status(200).json({
-      status: true,
-      message: "Growth data fetched",
-      data: data,
+      success: true,
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getTopDiagnoses = async (req, res, next) => {
+  try {
+    const data = await analyticsService.getTopDiagnoses();
+    res.status(200).json({
+      success: true,
+      data,
     });
   } catch (err) {
     next(err);

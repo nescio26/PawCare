@@ -28,4 +28,6 @@ dist-ssr
 .kluster
 
 
+# env files
 .env
+backend/.env

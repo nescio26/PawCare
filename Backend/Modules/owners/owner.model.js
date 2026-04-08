@@ -4,12 +4,12 @@ const ownerSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Owner Name Is Required"],
+      required: [true, "Owner name is required"],
       trim: true,
     },
     phone: {
       type: String,
-      required: [true, "Phone Number Is Required"],
+      required: [true, "Phone number is required"],
       unique: true,
       trim: true,
     },

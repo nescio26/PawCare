@@ -13,7 +13,7 @@ import petRoutes from "./Modules/pets/pet.routes.js";
 import visitRoutes from "./Modules/visits/visit.routes.js";
 import queueRoutes from "./Modules/queue/queue.routes.js";
 import recordRoutes from "./Modules/records/record.routes.js";
-import analyticsRoutes from "./modules/analytics/analytics.routes.js";
+import analyticsRoutes from "./Modules/analytics/analytics.routes.js";
 
 const app = express();
 

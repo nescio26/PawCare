@@ -1,233 +1,130 @@
-import Owner from "../owners/owner.model.js";
-import Pet from "../pets/pet.model.js";
-import Record from "../records/record.model.js";
 import Visit from "../visits/visit.model.js";
+import Pet from "../pets/pet.model.js";
+import Owner from "../owners/owner.model.js";
+import User from "../auth/auth.model.js";
+import Record from "../records/record.model.js";
 
-export const getDashboardSummary = async () => {
-  const [
-    totalOwners,
-    totalPets,
-    totalVisits,
-    completedVisits,
-    cancelledVisits,
-    activeOwners,
-    activePets,
-  ] = await Promise.all([
-    Owner.countDocuments(),
-    Pet.countDocuments(),
-    Visit.countDocuments(),
-    Visit.countDocuments({ status: "done" }),
-    Visit.countDocuments({ status: "cancelled" }),
-    Owner.countDocuments({ isActive: true }),
-    Pet.countDocuments({ isActive: true }),
-  ]);
+export const getOverview = async () => {
+  const [totalPets, totalOwners, totalVets, totalVisitsToday] =
+    await Promise.all([
+      Pet.countDocuments({ isActive: true }),
+      Owner.countDocuments({ isActive: true }),
+      User.countDocuments({ role: "vet", isActive: true }),
+      Visit.countDocuments({
+        visitDate: { $gte: new Date().setHours(0, 0, 0, 0) },
+      }),
+    ]);
 
   return {
-    totalOwners,
-    activeOwners,
     totalPets,
-    activePets,
-    totalVisits,
-    completedVisits,
-    cancelledVisits,
-    pendingVisits: totalVisits - completedVisits - cancelledVisits,
+    totalOwners,
+    totalVets,
+    totalVisitsToday,
   };
 };
-// getVisitTrends
 
-export const getVisitTrends = async (period = "monthly", limit = 12) => {
-  const formatMap = {
-    daily: "%d-%m-%Y",
-    weekly: "%Y-W%V",
-    monthly: "%Y-%m",
-  };
+export const getVisitStats = async (period = "week") => {
+  const now = new Date();
+  let startDate;
 
-  const format = formatMap[period] ?? formatMap.monthly;
+  if (period === "week") {
+    startDate = new Date(now.setDate(now.getDate() - 7));
+  } else if (period === "month") {
+    startDate = new Date(now.setMonth(now.getMonth() - 1));
+  } else if (period === "year") {
+    startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+  }
 
-  const trends = await Visit.aggregate([
+  return await Visit.aggregate([
+    {
+      $match: {
+        visitDate: { $gte: startDate },
+      },
+    },
     {
       $group: {
         _id: {
-          $dateToString: { format, date: "$visitDate", timezone: "UTC" },
+          $dateToString: { format: "%Y-%m-%d", date: "$visitDate" },
         },
-        total: { $sum: 1 },
-        done: { $sum: { $cond: [{ $eq: ["$status", "done"] }, 1, 0] } },
-        cancelled: {
-          $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] },
-        },
-        waiting: { $sum: { $cond: [{ $eq: ["$status", "waiting"] }, 1, 0] } },
+        count: { $sum: 1 },
       },
     },
-    { $sort: { _id: -1 } },
-    { $limit: Number(limit) },
     { $sort: { _id: 1 } },
+  ]);
+};
+
+export const getSpeciesStats = async () => {
+  return await Pet.aggregate([
+    { $match: { isActive: true } },
+    {
+      $group: {
+        _id: "$species",
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { count: -1 } },
+  ]);
+};
+
+export const getVetStats = async () => {
+  return await Visit.aggregate([
+    {
+      $match: {
+        vet: { $exists: true },
+        status: "done",
+      },
+    },
+    {
+      $group: {
+        _id: "$vet",
+        totalCases: { $sum: 1 },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "vetInfo",
+      },
+    },
+    { $unwind: "$vetInfo" },
     {
       $project: {
-        _id: 0,
-        period: "$_id",
-        total: 1,
-        done: 1,
-        cancelled: 1,
-        waiting: 1,
+        name: "$vetInfo.name",
+        email: "$vetInfo.email",
+        totalCases: 1,
       },
     },
+    { $sort: { totalCases: -1 } },
   ]);
-
-  return trends;
 };
-
-// getQueueStats
 
 export const getQueueStats = async () => {
-  const [waitTime, peakHours, statusBreakdown] = await Promise.all([
-    // Approximate wait: updatedAt - createdAt for completed visits (minutes)
-    Visit.aggregate([
-      { $match: { status: "done" } },
-      {
-        $project: {
-          waitMinutes: {
-            $divide: [
-              { $subtract: ["$updatedAt", "$createdAt"] },
-              60000, // ms → minutes
-            ],
-          },
-        },
+  return await Visit.aggregate([
+    {
+      $group: {
+        _id: "$status",
+        count: { $sum: 1 },
       },
-      {
-        $group: {
-          _id: null,
-          avgWaitMinutes: { $avg: "$waitMinutes" },
-          minWaitMinutes: { $min: "$waitMinutes" },
-          maxWaitMinutes: { $max: "$waitMinutes" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          avgWaitMinutes: { $round: ["$avgWaitMinutes", 1] },
-          minWaitMinutes: { $round: ["$minWaitMinutes", 1] },
-          maxWaitMinutes: { $round: ["$maxWaitMinutes", 1] },
-        },
-      },
-    ]),
-
-    Visit.aggregate([
-      {
-        $group: {
-          _id: { $hour: { date: "$visitDate", timezone: "UTC" } },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-      { $project: { _id: 0, hour: "$_id", count: 1 } },
-    ]),
-
-    Visit.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
-        },
-      },
-      { $project: { _id: 0, status: "$_id", count: 1 } },
-    ]),
-  ]);
-
-  return {
-    waitTime: waitTime[0] ?? {
-      avgWaitMinutes: 0,
-      minWaitMinutes: 0,
-      maxWaitMinutes: 0,
     },
-    peakHours,
-    statusBreakdown,
-  };
+  ]);
 };
 
-// getTopBreedsAndDiagnoses
-
-export const getTopBreedsAndDiagnoses = async (topN = 10) => {
-  const [breeds, diagnoses, species] = await Promise.all([
-    // breed is optional on Pet — filter empty values
-    Pet.aggregate([
-      { $match: { breed: { $exists: true, $nin: ["", null] } } },
-      { $group: { _id: "$breed", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: Number(topN) },
-      { $project: { _id: 0, breed: "$_id", count: 1 } },
-    ]),
-
-    // diagnosis is optional on Record — filter empty values
-    Record.aggregate([
-      { $match: { diagnosis: { $exists: true, $nin: ["", null] } } },
-      { $group: { _id: "$diagnosis", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: Number(topN) },
-      { $project: { _id: 0, diagnosis: "$_id", count: 1 } },
-    ]),
-
-    // species is required on Pet — always reliable
-    Pet.aggregate([
-      { $group: { _id: "$species", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $project: { _id: 0, species: "$_id", count: 1 } },
-    ]),
-  ]);
-
-  return { breeds, diagnoses, species };
-};
-
-// getGrowthOverTime
-
-export const getGrowthOverTime = async (months = 12) => {
-  const since = new Date();
-  since.setMonth(since.getMonth() - months);
-
-  const format = "%Y-%m";
-
-  const [ownerGrowth, petGrowth] = await Promise.all([
-    Owner.aggregate([
-      { $match: { createdAt: { $gte: since } } },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format, date: "$createdAt", timezone: "UTC" },
-          },
-          newOwners: { $sum: 1 },
-        },
+export const getTopDiagnoses = async () => {
+  return await Record.aggregate([
+    {
+      $match: {
+        diagnosis: { $exists: true, $ne: "" },
       },
-      { $sort: { _id: 1 } },
-      { $project: { _id: 0, month: "$_id", newOwners: 1 } },
-    ]),
-
-    Pet.aggregate([
-      { $match: { createdAt: { $gte: since } } },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format, date: "$createdAt", timezone: "UTC" },
-          },
-          newPets: { $sum: 1 },
-        },
+    },
+    {
+      $group: {
+        _id: "$diagnosis",
+        count: { $sum: 1 },
       },
-      { $sort: { _id: 1 } },
-      { $project: { _id: 0, month: "$_id", newPets: 1 } },
-    ]),
+    },
+    { $sort: { count: -1 } },
+    { $limit: 10 },
   ]);
-
-  // Merge both series on the month key
-  const monthMap = {};
-
-  for (const { month, newOwners } of ownerGrowth) {
-    monthMap[month] = { month, newOwners, newPets: 0 };
-  }
-  for (const { month, newPets } of petGrowth) {
-    if (monthMap[month]) {
-      monthMap[month].newPets = newPets;
-    } else {
-      monthMap[month] = { month, newOwners: 0, newPets };
-    }
-  }
-
-  return Object.values(monthMap).sort((a, b) => a.month.localeCompare(b.month));
 };

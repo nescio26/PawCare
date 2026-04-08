@@ -28,7 +28,8 @@ export const getAllPets = async (search) => {
 
 // getPetById
 export const getPetById = async (id) => {
-  const pet = await Pet.findById(id);
+  const pet = await Pet.findById(id).populate("owner", "name phone email");
+
   if (!pet || !pet.isActive) throw new Error("Pet Not Found");
   return pet;
 };
