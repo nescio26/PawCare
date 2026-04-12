@@ -46,7 +46,7 @@ export default function VetDashboard() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <PageHeader
-        title={`Welcome back, Dr. ${user?.name?.split(" ")[0] || "Vet"}`}
+        title={`Welcome back, ${user?.name?.split(" ")[0] || "Vet"}`}
         description="Here is what your patient queue looks like today."
       />
 
