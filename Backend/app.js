@@ -20,7 +20,16 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: config.clientURL,
+    origin: function (origin, callback) {
+      const allowedOrigin = config.clientURL;
+
+      if (!origin || origin === allowedOrigin) {
+        callback(null, true);
+      } else {
+        console.log("Blocked CORS origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
