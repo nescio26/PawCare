@@ -20,7 +20,21 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://paw-care-sigma.vercel.app"],
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://paw-care-sigma.vercel.app",
+      ];
+
+      // allow requests with no origin (Postman, mobile apps)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
