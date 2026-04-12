@@ -26,6 +26,6 @@ export const getQueueStats = async () => {
 };
 
 export const getTopDiagnoses = async () => {
-  const res = await api.get("/analtics/diagnoses");
+  const res = await api.get("/analytics/diagnoses");
   return res.data;
 };
