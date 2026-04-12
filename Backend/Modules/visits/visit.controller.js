@@ -40,8 +40,16 @@ export const getTodayVisits = async (req, res, next) => {
 export const getVisitById = async (req, res, next) => {
   try {
     const visit = await visitService.getVisitById(req.params.id);
+
+    if (!visit) {
+      return res.status(404).json({
+        success: false,
+        message: "Visit not found",
+      });
+    }
+
     res.status(200).json({
-      status: true,
+      success: true,
       data: visit,
     });
   } catch (err) {
