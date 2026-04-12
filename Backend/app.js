@@ -21,13 +21,17 @@ const app = express();
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigin = config.clientURL;
+      const allowedOrigin = config.clientURL?.replace(/\/$/, "");
 
-      if (!origin || origin === allowedOrigin) {
+      if (!origin) return callback(null, true);
+
+      const requestOrigin = origin.replace(/\/$/, "");
+
+      if (requestOrigin === allowedOrigin) {
         callback(null, true);
       } else {
         console.log("Blocked CORS origin:", origin);
-        callback(new Error("Not allowed by CORS"));
+        callback(null, false); // IMPORTANT: do NOT crash server
       }
     },
     credentials: true,
