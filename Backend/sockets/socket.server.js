@@ -12,7 +12,7 @@ const allowedOrigins = [
 export const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: allowedOrigins, // ← array not single string
+      origin: allowedOrigins,
       methods: ["GET", "POST"],
       credentials: true,
     },

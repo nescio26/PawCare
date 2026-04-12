@@ -12,7 +12,7 @@ export const createRecord = async (data) => {
 
   const record = await Record.create(data);
 
-  return await Record.findById(record._id) // ← this populate call
+  return await Record.findById(record._id)
     .populate("pet", "name species breed")
     .populate("vet", "name email")
     .populate("visit", "queueNo visitDate status");

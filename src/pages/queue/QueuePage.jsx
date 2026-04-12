@@ -4,13 +4,11 @@ import { useQueue } from "../../hooks/useQueue.js";
 import { useUpdateVisitStatus } from "../../hooks/useVisits.js";
 import { useAuthStore } from "../../store/authStore.js";
 
-// Components
 import QueueCard from "./QueueCard.jsx";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import LoadingSpinner from "../../components/shared/LoadingSpinner.jsx";
 import EmptyState from "../../components/shared/EmptyState.jsx";
 
-// Icons
 import {
   Clock,
   Activity,
@@ -29,7 +27,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "../../components/ui/breadcrumb.jsx";
-// The local transition logic used by handleStatusUpdate
 const nextStatus = { waiting: "in-progress", "in-progress": "done" };
 
 export default function QueuePage() {
@@ -102,7 +99,6 @@ export default function QueuePage() {
         />
       ) : (
         <div className="grid gap-10 lg:grid-cols-2 items-start pt-2">
-          {/* Waiting Room */}
           <section className="space-y-4">
             <div className="flex items-center justify-between px-2">
               <h3 className="flex items-center gap-2 font-black text-lg uppercase tracking-tight">
@@ -134,7 +130,6 @@ export default function QueuePage() {
             </div>
           </section>
 
-          {/* Active Sessions */}
           <section className="space-y-4">
             <div className="flex items-center justify-between px-2">
               <h3 className="flex items-center gap-2 font-black text-lg uppercase tracking-tight text-blue-700">

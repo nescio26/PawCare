@@ -38,7 +38,6 @@ export default function OwnerDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  // Note: Based on your previous data issue, ensure these reach the correct layer
   const { data: ownerData, isLoading } = useOwner(id);
   const { data: petsData, isLoading: petsLoading } = usePetsByOwner(id);
 
@@ -100,7 +99,7 @@ export default function OwnerDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* 3. Left Column: Contact Sidebar */}
+        {/*  Left Column: Contact Sidebar */}
         <div className="space-y-6">
           <Card className="shadow-md border-border/60">
             <CardHeader className="pb-3">
@@ -128,7 +127,7 @@ export default function OwnerDetailPage() {
           </Card>
         </div>
 
-        {/* 4. Right Column: Pets List */}
+        {/*  Right Column: Pets List */}
         <div className="md:col-span-2 space-y-6">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -209,7 +208,6 @@ export default function OwnerDetailPage() {
   );
 }
 
-// 5. Atomic Components for cleaner code
 function ContactItem({ icon, label, value }) {
   return (
     <div className="group flex flex-col gap-1">

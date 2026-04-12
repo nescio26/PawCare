@@ -26,7 +26,6 @@ export default function RecordsPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-10 animate-in fade-in duration-500">
-      {/* 1. Breadcrumbs */}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -43,7 +42,6 @@ export default function RecordsPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* 2. Header */}
       <PageHeader
         title="Medical Records"
         description="Records from today's completed visits"
@@ -60,7 +58,6 @@ export default function RecordsPage() {
         }
       />
 
-      {/* 3. List Content */}
       {isLoading ? (
         <div className="py-20 flex justify-center">
           <LoadingSpinner />

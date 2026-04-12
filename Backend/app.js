@@ -26,7 +26,6 @@ app.use(
         "https://paw-care-sigma.vercel.app",
       ];
 
-      // allow requests with no origin (Postman, mobile apps)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {

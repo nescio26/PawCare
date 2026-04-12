@@ -62,7 +62,6 @@ export default function StaffDashboard() {
         }
       />
 
-      {/* Responsive Stat Cards: grid-cols-1 for small phones */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           title="Waiting"
@@ -88,7 +87,6 @@ export default function StaffDashboard() {
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4">
           <CardTitle className="text-lg font-bold">Today's Visits</CardTitle>
 
-          {/* Connection Status Indicator */}
           <div
             className={cn(
               "flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wider transition-colors",

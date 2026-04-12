@@ -221,8 +221,6 @@ export default function OwnerFormPage() {
                 type="button"
                 variant="ghost"
                 onClick={() => navigate(-1)}
-                // Removed the heavy red background to keep the "Ghost" look clean
-                // but kept a subtle red hover effect to signal 'danger'
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                 disabled={creating || updating}
               >
@@ -256,5 +254,3 @@ export default function OwnerFormPage() {
     </div>
   );
 }
-
-// 5. Helper component to clean up repeating logic and improve spacing consistency

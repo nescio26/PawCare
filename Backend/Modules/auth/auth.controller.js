@@ -13,13 +13,11 @@ export const register = async (req, res, next) => {
     const validated = registerSchema.parse(req.body);
     const result = await authService.registerUser(validated);
 
-    // ✅ don't set cookie, don't return token
-    // admin is creating staff — not logging in as them
     res.status(201).json({
       success: true,
       message: "User Registered Successfully",
       data: {
-        user: result.user, // only return user, no token
+        user: result.user,
       },
     });
   } catch (err) {

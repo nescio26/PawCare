@@ -17,7 +17,7 @@ import {
   CheckCircle,
   ChevronRight,
   Stethoscope,
-  Users, // Added missing import
+  Users, /
 } from "lucide-react";
 import { formatTime } from "../../utils/formatDate.js";
 import { cn } from "../../utils/cn.js";

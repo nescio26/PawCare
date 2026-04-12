@@ -6,10 +6,8 @@ import { FileText, User, Stethoscope, ChevronRight } from "lucide-react";
 export default function VisitRecordRow({ visit, navigate, userRole }) {
   const { data: recordData, isLoading } = useRecordByVisit(visit._id);
 
-  // ✅ safe handling (IMPORTANT FIX)
   const record = recordData?.data || null;
 
-  // ✅ optional: avoid flicker
   if (isLoading) return null;
 
   const handleClick = () => {

@@ -186,7 +186,6 @@ export default function PetDetailPage() {
 
         {/* 4. Right Column: History & Records */}
         <div className="md:col-span-2 space-y-6">
-          {/* Visit History Card */}
           <Card className="shadow-md border-border/60 overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-4 border-b bg-slate-50/50">
               <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">

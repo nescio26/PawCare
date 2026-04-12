@@ -80,10 +80,8 @@ export default function UsersPage() {
 
   const users = data?.data || [];
 
-  // edit form
   const { register, handleSubmit, setValue, watch, reset } = useForm();
 
-  // add staff form
   const {
     register: registerNew,
     handleSubmit: handleNewSubmit,
