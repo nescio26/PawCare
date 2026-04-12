@@ -101,7 +101,7 @@ export default function QueueCard({
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
               <span className="text-xs font-bold text-primary truncate max-w-[120px]">
-                Dr. {visit.vet.name?.split(" ")[0]}
+                {visit.vet.name?.split(" ")[0]}
               </span>
             </div>
           ) : (
