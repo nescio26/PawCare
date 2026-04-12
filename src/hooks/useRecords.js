@@ -15,6 +15,9 @@ export const useRecordByVisit = (visitId) => {
     queryKey: ["records", "visit", visitId],
     queryFn: () => recordService.getRecordByVisit(visitId),
     enabled: !!visitId,
+    retry: false, // ← don't retry on 404
+    // return null instead of throwing on 404
+    throwOnError: false,
   });
 };
 

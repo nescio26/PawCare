@@ -10,7 +10,7 @@ export const initSocket = (httpServer) => {
       methods: ["GET", "POST"],
       credentials: true,
     },
-
+    transports: ["polling", "websocket"],
     allowEIO3: true,
     pingTimeout: 60000,
     pingInterval: 25000,

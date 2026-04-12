@@ -51,15 +51,23 @@ export const getRecordById = async (req, res, next) => {
 export const getRecordByVisit = async (req, res, next) => {
   try {
     const record = await recordService.getRecordByVisit(req.params.visitId);
+
+    // ✅ return 404 instead of throwing
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        message: "No record found for this visit",
+      });
+    }
+
     res.status(200).json({
-      status: true,
+      success: true,
       data: record,
     });
   } catch (err) {
     next(err);
   }
 };
-
 // updateRecord
 
 export const updateRecord = async (req, res, next) => {

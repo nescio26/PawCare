@@ -40,15 +40,18 @@ export const getRecordById = async (id) => {
 // getRecordByVisit
 
 export const getRecordByVisit = async (visitId) => {
-  const record = await Record.findOne({ visit: visitId })
-    .populate("pet", "name species breed")
-    .populate("vet", "name")
-    .populate("visit", "queueNo visitDate status");
+  try {
+    const record = await Record.findOne({ visit: visitId })
+      .populate("pet", "name species breed")
+      .populate("vet", "name email")
+      .populate("visit", "queueNo visitDate status");
 
-  if (!record) throw new Error("Record Not Found For This Visit");
-  return record;
+    return record; // null if not found — no throw
+  } catch (err) {
+    console.error("getRecordByVisit error:", err.message);
+    throw err;
+  }
 };
-
 // updateRecord
 
 export const updateRecord = async (id, data) => {

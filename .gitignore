@@ -63,3 +63,6 @@ backend/.env
 
 .github/instructions/kluster-code-verify.instructions.md
 .kluster
+
+uploads/*
+!uploads/.gitkeep

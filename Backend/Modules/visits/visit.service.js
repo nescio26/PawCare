@@ -1,21 +1,9 @@
-import mongoose from "mongoose";
 import Visit from "./visit.model.js";
 import Pet from "../pets/pet.model.js";
 import Owner from "../owners/owner.model.js";
 import { emitQueueUpdate } from "../../sockets/queue.socket.js";
+// getNextQueueNo
 
-/* =========================
-   ERROR HELPER
-========================= */
-const createError = (message, statusCode = 500) => {
-  const err = new Error(message);
-  err.statusCode = statusCode;
-  return err;
-};
-
-/* =========================
-   QUEUE NUMBER
-========================= */
 const getNextQueueNo = async () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -27,19 +15,14 @@ const getNextQueueNo = async () => {
   return lastVisit ? lastVisit.queueNo + 1 : 1;
 };
 
-/* =========================
-   CREATE VISIT
-========================= */
+// createVisit
+
 export const createVisit = async (data) => {
   const pet = await Pet.findById(data.pet);
-  if (!pet || !pet.isActive) {
-    throw createError("Pet not found", 404);
-  }
+  if (!pet || !pet.isActive) throw new Error("Pet not found");
 
   const owner = await Owner.findById(data.owner);
-  if (!owner || !owner.isActive) {
-    throw createError("Owner not found", 404);
-  }
+  if (!owner || !owner.isActive) throw new Error("Owner not found");
 
   const queueNo = await getNextQueueNo();
 
@@ -57,9 +40,8 @@ export const createVisit = async (data) => {
   return populated;
 };
 
-/* =========================
-   GET TODAY VISITS
-========================= */
+// getTodayVisits
+
 export const getTodayVisits = async () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -73,47 +55,31 @@ export const getTodayVisits = async () => {
     .sort({ queueNo: 1 });
 };
 
-/* =========================
-   GET VISIT BY ID
-========================= */
-export const getVisitById = async (id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw createError("Invalid visit ID", 400);
-  }
+// getVisitById
 
+export const getVisitById = async (id) => {
   const visit = await Visit.findById(id)
     .populate("pet", "name species breed")
     .populate("owner", "name phone")
     .populate("vet", "name");
 
-  if (!visit) {
-    throw createError("Visit not found", 404);
-  }
-
+  if (!visit) throw new Error("Visit not found");
   return visit;
 };
 
-/* =========================
-   GET VISITS BY PET
-========================= */
-export const getVisitsByPet = async (petId) => {
-  if (!mongoose.Types.ObjectId.isValid(petId)) {
-    throw createError("Invalid pet ID", 400);
-  }
+// getVisitByPet
 
+export const getVisitsByPet = async (petId) => {
   return await Visit.find({ pet: petId })
     .populate("vet", "name")
     .sort({ createdAt: -1 });
 };
 
-/* =========================
-   UPDATE VISIT STATUS
-========================= */
+// updateVisitStatus
+
 export const updateVisitStatus = async (id, data) => {
   const visit = await Visit.findById(id);
-  if (!visit) {
-    throw createError("Visit not found", 404);
-  }
+  if (!visit) throw new Error("Visit not found");
 
   Object.assign(visit, data);
   await visit.save();
@@ -127,19 +93,15 @@ export const updateVisitStatus = async (id, data) => {
   return populated;
 };
 
-/* =========================
-   CANCEL VISIT
-========================= */
+// cancelVisit
+
 export const cancelVisit = async (id) => {
   const visit = await Visit.findById(id);
-  if (!visit) {
-    throw createError("Visit not found", 404);
-  }
+  if (!visit) throw new Error("Visit not found");
 
   visit.status = "cancelled";
   await visit.save();
 
   emitQueueUpdate();
-
   return { message: "Visit cancelled successfully" };
 };
