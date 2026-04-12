@@ -1,15 +1,18 @@
-import { useUsers } from "../../hooks/useUsers.js";
+import { useVets } from "../../hooks/useUsers.js";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select.jsx";
+} from "../ui/select.jsx";
 
 export default function VetSelector({ visitId, selectedVet, setSelectedVet }) {
-  const { data } = useUsers();
-  const vets = (data?.data || []).filter((u) => u.role === "vet");
+  const { data, isError, isLoading } = useVets();
+
+  const vets = isError || isLoading ? [] : data?.data || [];
+
+  if (vets.length === 0) return null;
 
   return (
     <Select
@@ -18,17 +21,13 @@ export default function VetSelector({ visitId, selectedVet, setSelectedVet }) {
         setSelectedVet((prev) => ({ ...prev, [visitId]: v }))
       }
     >
-      <SelectTrigger className="h-10 text-xs bg-white border-dashed hover:border-primary transition-all rounded-xl border-2">
-        <SelectValue placeholder="Assign Doctor..." />
+      <SelectTrigger className="h-9 text-xs rounded-xl border-border/60 flex-1">
+        <SelectValue placeholder="Assign vet (optional)" />
       </SelectTrigger>
-      <SelectContent className="rounded-xl shadow-xl">
+      <SelectContent className="rounded-xl">
         {vets.map((vet) => (
-          <SelectItem
-            key={vet._id}
-            value={vet._id}
-            className="text-xs font-bold py-2"
-          >
-            {vet.name}
+          <SelectItem key={vet._id} value={vet._id} className="text-sm">
+            Dr. {vet.name}
           </SelectItem>
         ))}
       </SelectContent>

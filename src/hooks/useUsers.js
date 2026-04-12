@@ -3,6 +3,7 @@ import * as userService from "../services/user.service.js";
 import * as authService from "../services/auth.service.js";
 import { useAuthStore } from "../store/authStore.js";
 import toast from "react-hot-toast";
+import api from "@/services/api.js";
 
 export const useUsers = () => {
   const { token } = useAuthStore(); // ← token was not imported
@@ -67,5 +68,15 @@ export const useRegisterStaff = () => {
     onError: (err) => {
       toast.error(err.response?.data?.message || "Failed to create account");
     },
+  });
+};
+
+export const useVets = () => {
+  const { token } = useAuthStore();
+  return useQuery({
+    queryKey: ["vets"],
+    queryFn: () => api.get("/users/vets").then((res) => res.data),
+    enabled: !!token,
+    retry: false,
   });
 };

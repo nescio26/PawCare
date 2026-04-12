@@ -1,3 +1,4 @@
+import User from "../auth/auth.model.js";
 import * as userService from "./user.service.js";
 import { changePasswordSchema, updateUserSchema } from "./user.validation.js";
 
@@ -72,6 +73,20 @@ export const changeUserPassword = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: result.message,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getVets = async (req, res, next) => {
+  try {
+    const vets = await User.find({ role: "vet", isActive: true })
+      .select("name email role")
+      .sort({ name: 1 });
+    res.status(200).json({
+      success: true,
+      data: vets,
     });
   } catch (err) {
     next(err);

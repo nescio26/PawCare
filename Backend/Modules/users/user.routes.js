@@ -5,8 +5,11 @@ import { restrictTo } from "../../middlewares/role.middleware.js";
 
 const router = express.Router();
 
-router.use(protect, restrictTo("admin"));
+// ✅ accessible by all authenticated users
+router.get("/vets", protect, userController.getVets);
 
+// admin only
+router.use(protect, restrictTo("admin"));
 router.get("/", userController.getAllUsers);
 router.get("/:id", userController.getUserById);
 router.put("/:id", userController.updateUser);

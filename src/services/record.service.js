@@ -6,8 +6,13 @@ export const getRecordsByPet = async (petId) => {
 };
 
 export const getRecordByVisit = async (visitId) => {
-  const res = await api.get(`/records/visit/${visitId}`);
-  return res.data;
+  try {
+    const res = await api.get(`/records/visit/${visitId}`);
+    return res.data;
+  } catch (err) {
+    if (err.response?.status === 404) return null;
+    throw err;
+  }
 };
 
 export const getRecordById = async (id) => {

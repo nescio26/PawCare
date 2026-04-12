@@ -85,19 +85,6 @@ export const updateVisitStatus = async (id, data) => {
   Object.assign(visit, data);
   await visit.save();
 
-  // 🔥 AUTO CREATE RECORD WHEN VISIT IS DONE
-  if (data.status === "done") {
-    const existingRecord = await Record.findOne({ visit: id });
-
-    if (!existingRecord) {
-      await Record.create({
-        visit: id,
-        pet: visit.pet,
-        owner: visit.owner,
-      });
-    }
-  }
-
   const populated = await Visit.findById(id)
     .populate("pet", "name species breed")
     .populate("owner", "name phone")
