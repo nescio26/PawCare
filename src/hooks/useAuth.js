@@ -31,7 +31,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: authService.logout,
     onSuccess: () => {
-      clearAuth(); // clear Zustand first
+      clearAuth();
       navigate("/login", { replace: true });
       toast.success("Logged Out Successfully");
     },

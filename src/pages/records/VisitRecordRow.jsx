@@ -53,7 +53,7 @@ export default function VisitRecordRow({ visit, navigate, userRole }) {
 
               <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                 <Stethoscope className="w-3.5 h-3.5 text-primary/60" />
-                Dr. {visit.vet?.name || "Unassigned"}
+                {visit.vet?.name || "Unassigned"}
               </span>
             </div>
           </div>

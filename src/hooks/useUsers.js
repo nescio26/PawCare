@@ -6,11 +6,11 @@ import toast from "react-hot-toast";
 import api from "@/services/api.js";
 
 export const useUsers = () => {
-  const { token } = useAuthStore(); // ← token was not imported
+  const { token } = useAuthStore();
 
   return useQuery({
     queryKey: ["users"],
-    queryFn: userService.getUsers, // ← was "getUser" missing the s
+    queryFn: userService.getUsers,
     enabled: !!token,
     retry: false,
   });
@@ -32,7 +32,7 @@ export const useUpdateUser = () => {
 
 export const useChangePassword = () => {
   return useMutation({
-    mutationFn: ({ id, password }) => userService.changePassword(id, password), // ← was importing from @/ alias
+    mutationFn: ({ id, password }) => userService.changePassword(id, password),
     onSuccess: () => toast.success("Password Changed Successfully"),
     onError: (err) =>
       toast.error(err.response?.data?.message || "Failed To Change Password"),
@@ -55,12 +55,11 @@ export const useDeactivateUser = () => {
 
 export const useRegisterStaff = () => {
   const queryClient = useQueryClient();
-  const { token, setAuth, user } = useAuthStore(); // ← get current admin session
+  const { token, setAuth, user } = useAuthStore();
 
   return useMutation({
     mutationFn: authService.register,
     onSuccess: () => {
-      // restore admin session — registration overwrote it
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.refetchQueries({ queryKey: ["users"] });
       toast.success("Staff account created successfully");
