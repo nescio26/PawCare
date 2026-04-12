@@ -20,20 +20,7 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: function (origin, callback) {
-      const allowedOrigin = config.clientURL?.replace(/\/$/, "");
-
-      if (!origin) return callback(null, true);
-
-      const requestOrigin = origin.replace(/\/$/, "");
-
-      if (requestOrigin === allowedOrigin) {
-        callback(null, true);
-      } else {
-        console.log("Blocked CORS origin:", origin);
-        callback(null, false); // IMPORTANT: do NOT crash server
-      }
-    },
+    origin: ["http://localhost:5173", "https://paw-care-sigma.vercel.app"],
     credentials: true,
   }),
 );

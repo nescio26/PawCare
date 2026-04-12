@@ -13,7 +13,7 @@ const config = Object.freeze({
   nodeEnv: process.env.NODE_ENV || "development",
   accessTokenSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
-  clientURL: process.env.CLIENT_URL,
+  clientURL: process.env.FRONTEND_URL || process.env.CLIENT_URL, // ← read both
 });
 
 export const ENV = config;

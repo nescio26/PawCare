@@ -2,6 +2,7 @@ import Visit from "./visit.model.js";
 import Pet from "../pets/pet.model.js";
 import Owner from "../owners/owner.model.js";
 import { emitQueueUpdate } from "../../sockets/queue.socket.js";
+import Record from "../records/record.model.js";
 // getNextQueueNo
 
 const getNextQueueNo = async () => {
@@ -83,6 +84,19 @@ export const updateVisitStatus = async (id, data) => {
 
   Object.assign(visit, data);
   await visit.save();
+
+  // 🔥 AUTO CREATE RECORD WHEN VISIT IS DONE
+  if (data.status === "done") {
+    const existingRecord = await Record.findOne({ visit: id });
+
+    if (!existingRecord) {
+      await Record.create({
+        visit: id,
+        pet: visit.pet,
+        owner: visit.owner,
+      });
+    }
+  }
 
   const populated = await Visit.findById(id)
     .populate("pet", "name species breed")

@@ -52,7 +52,6 @@ export const getRecordByVisit = async (req, res, next) => {
   try {
     const record = await recordService.getRecordByVisit(req.params.visitId);
 
-    // ✅ return 404 instead of throwing
     if (!record) {
       return res.status(404).json({
         success: false,
