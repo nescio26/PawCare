@@ -3,15 +3,17 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/react";
+
 import App from "./App.jsx";
 import "./index.css";
-import { Analytics } from "@vercel/analytics/next";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
     },
   },
 });
@@ -21,8 +23,16 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <App />
-        <Analytics />
-        <Toaster position="top-center" richColors />
+
+        {import.meta.env.PROD && <Analytics />}
+
+        <Toaster
+          position="top-center"
+          richColors
+          toastOptions={{
+            duration: 3000,
+          }}
+        />
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,

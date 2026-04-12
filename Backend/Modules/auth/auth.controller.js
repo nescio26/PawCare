@@ -32,7 +32,6 @@ export const login = async (req, res, next) => {
     const validated = loginSchema.parse(req.body);
     const result = await authService.loginUser(validated);
 
-    res.cookie("token", result.token, cookieOptions);
     res.status(200).json({
       success: true,
       message: "Login Successful",
