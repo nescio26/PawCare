@@ -3,7 +3,7 @@ import {
   useVisitStats,
   useSpeciesStats,
   useVetStats,
-} from "../../hooks/useAnalytisc.js";
+} from "../../hooks/useAnalytics.js";
 import StatCard from "../../components/shared/StatCard.jsx";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import LoadingSpinner from "../../components/shared/LoadingSpinner.jsx";

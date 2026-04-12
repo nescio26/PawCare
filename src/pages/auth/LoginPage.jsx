@@ -99,6 +99,7 @@ export default function LoginPage() {
 
               <div className="relative">
                 <Input
+                  autoComplete="current-password"
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"

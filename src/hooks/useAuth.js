@@ -14,9 +14,9 @@ export const useLogin = () => {
       setAuth(data.data.user, data.data.token);
       toast.success("Welcome Back");
       const role = data.data.user.role;
-      if (role === "admin") navigate("dashboard/admin");
-      else if (role === "vet") navigate("dashboard/vet");
-      else navigate("dashboard/staff");
+      if (role === "admin") navigate("/dashboard/admin");
+      else if (role === "vet") navigate("/dashboard/vet");
+      else navigate("/dashboard/staff");
     },
     onError: (err) => {
       toast.error(err.response?.data?.message || "Login Failed");
