@@ -21,6 +21,14 @@ import {
   LayoutGrid,
 } from "lucide-react";
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../../components/ui/breadcrumb.jsx";
 // The local transition logic used by handleStatusUpdate
 const nextStatus = { waiting: "in-progress", "in-progress": "done" };
 
@@ -49,18 +57,21 @@ export default function QueuePage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20 animate-in fade-in duration-700">
-      <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
-        <Link
-          to="/"
-          className="hover:text-primary transition-colors flex items-center gap-1"
-        >
-          <Home className="h-3 w-3" /> Dashboard
-        </Link>
-        <ChevronRight className="h-3 w-3 opacity-40" />
-        <span className="text-foreground flex items-center gap-1">
-          <LayoutGrid className="h-3 w-3" /> Live Queue
-        </span>
-      </nav>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/" className="flex items-center gap-1">
+                <Home className="h-3 w-3" /> Dashboard
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Live Queue</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="border-b pb-6">
         <PageHeader

@@ -16,6 +16,14 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore.js";
 import { formatTime } from "../../utils/formatDate.js";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../../components/ui/breadcrumb.jsx";
 
 const statusConfig = {
   waiting: {
@@ -44,23 +52,22 @@ export default function VisitsPage() {
   const visits = data?.data || [];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-10 animate-in fade-in duration-500">
-      {/* 1. Breadcrumb Navigation */}
-      <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
-        <Link
-          to="/"
-          className="hover:text-primary transition-colors flex items-center gap-1"
-        >
-          <Home className="h-3 w-3" />
-          Dashboard
-        </Link>
-        <ChevronRight className="h-3 w-3 opacity-40" />
-        <span className="text-foreground flex items-center gap-1">
-          <ClipboardList className="h-3 w-3" />
-          Visits Log
-        </span>
-      </nav>
-
+    <div className="max-w-5xl mx-auto space-y-6 pb-10 animate-in fade-in duration-500">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/" className="flex items-center gap-1">
+                <Home className="h-3 w-3" /> Dashboard
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Visits Log</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       {/* 2. Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b pb-6">
         <PageHeader

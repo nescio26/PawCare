@@ -27,7 +27,22 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { PawPrint, Users, Stethoscope, ClipboardList } from "lucide-react";
+import {
+  PawPrint,
+  Users,
+  Stethoscope,
+  ClipboardList,
+  Home,
+} from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../../components/ui/breadcrumb.jsx";
+import { Link } from "react-router-dom";
 
 const COLORS = [
   "#6366f1",
@@ -58,6 +73,22 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/" className="flex items-center gap-1">
+                <Home className="h-3 w-3" /> Dashboard
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Analytics Page</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <PageHeader
         title="Analytics"
         description="Clinic performance and statistics"
